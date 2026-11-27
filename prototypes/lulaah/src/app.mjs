@@ -1,6 +1,6 @@
 import * as T from 'three';
 import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
-import {capitalizePattern,formatPatternCounts,parsePattern} from './pattern.mjs';
+import {capitalizePattern,formatPatternCounts,nextPatternRow,parsePattern} from './pattern.mjs';
 import {buildPart, anchorAt, seatPart} from './model.mjs';
 
 const el = id => document.getElementById(id);
@@ -200,7 +200,10 @@ function fit() {
   const center=box.isEmpty() ? new T.Vector3() : box.getCenter(new T.Vector3());
   const bounds=box.isEmpty() ? new T.Vector3(2,2,2) : box.getSize(new T.Vector3());
   const radius=Math.min(bounds.length()/2,Math.max(bounds.x,bounds.y,bounds.z)*.67);
-  const direction=new T.Vector3(.38,!assembly && part().mode==='oval' ? 1.55 : .26,1).normalize();
+  let elevation=.26;
+  if (!assembly && part().mode==='oval') elevation=1.55;
+  else if (!assembly && models.get(part().id)?.openRound) elevation=-.9;
+  const direction=new T.Vector3(.38,elevation,1).normalize();
   const vertical=T.MathUtils.degToRad(camera.fov/2);
   const half=Math.min(vertical,Math.atan(Math.tan(vertical)*camera.aspect));
   camera.position.copy(center).addScaledVector(direction,Math.max(1,radius*1.08/Math.sin(half)));
@@ -217,6 +220,7 @@ function status(id,message,warning=false) {
 }
 function rebuild(refit=false) {
   clearTimeout(pending);
+  const hadOpenRound=models.get(part().id)?.openRound;
   if (stage) {scene.remove(stage);release(stage);}
   stage=new T.Group();
   scene.add(stage);
@@ -265,7 +269,8 @@ function rebuild(refit=false) {
   el('previewMeta').textContent=assembly ? models.size+' חלקים בתצוגה' : total+' עיניים · '+rowCount+' שורות';
   if (assembly) status('assemblyStatus',message || (free ? 'גררי את החלק הנבחר על פני המסך' : 'סמני מקום במודל או הזיני נקודת חיבור'),Boolean(message));
   else status('status', message || (total ? 'התצוגה מעודכנת' : 'הזיני את הוראות הסריגה לחלק'),Boolean(message));
-  if (refit || controls?.target.lengthSq() === 0 && camera.position.lengthSq() === 0) fit();
+  const openRound=models.get(part().id)?.openRound;
+  if (refit || (!assembly && openRound && !hadOpenRound) || controls?.target.lengthSq() === 0 && camera.position.lengthSq() === 0) fit();
   else paint();
 }
 function partTabs() {
@@ -361,11 +366,17 @@ el('pattern').addEventListener('beforeinput',event=>{
   const end=nextBreak<0 ? input.value.length : nextBreak;
   const line=input.value.slice(start,end);
   const match=line.match(/\s+\(\d+\)(?=\s*(?:[;#]|$))/);
-  if (!match) return;
-  const countStart=start+match.index;
-  const countEnd=countStart+match[0].length;
-  if (newline && caret>=countStart && caret<=countEnd) input.setSelectionRange(end,end);
-  else if (!newline && caret>countStart && caret<=countEnd) input.setSelectionRange(countStart,countStart);
+  const countStart=match ? start+match.index : end;
+  const countEnd=match ? countStart+match[0].length : end;
+  if (newline && event.cancelable && caret>=countStart && line.trim() && !/^\s*r\d+\s*:\s*$/i.test(line)) {
+    const number=nextPatternRow(input.value.slice(0,end),part().mode);
+    const prefix=input.value.slice(end+1).match(/^\s*(?:r\s*)?\d+(?:\s*[-–—]\s*(?:r\s*)?\d+)?\s*[:.)]/i) ? '' : 'R'+number+': ';
+    event.preventDefault();
+    input.setRangeText('\n'+prefix,end,end,'end');
+    input.dispatchEvent(new Event('input',{bubbles:true}));
+  } else if (!newline && caret>countStart && caret<=countEnd) {
+    input.setSelectionRange(countStart,countStart);
+  }
 });
 el('pattern').addEventListener('blur',()=>{refreshPattern(true);save();});
 el('pattern').addEventListener('compositionend',event=>event.currentTarget.dispatchEvent(new Event('input')));

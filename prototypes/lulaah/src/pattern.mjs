@@ -44,6 +44,20 @@ export function formatPatternCounts(input, counts, activeLine = -1) {
   }).join('\n');
 }
 
+const rowLabel = /^(?:r\s*)?(\d+)(?:\s*-\s*(?:r\s*)?(\d+))?\s*[:.)]\s*/;
+
+const prefixedRowLabel = /^r\s*(\d+)(?:\s*-\s*(?:r\s*)?(\d+))?(?:\s+|$)/;
+
+export function nextPatternRow(input, mode) {
+  const last = input.trimEnd().split(/\r?\n/).at(-1)?.split(/[;#]/)[0].trim()
+    .toLowerCase().replace(/(?:round|row|rnd|שורה|סיבוב)\s*/g,'r').replace(/[–—]/g,'-');
+  const label = last?.match(rowLabel) ?? last?.match(prefixedRowLabel);
+  if (label) return Number(label[2] ?? label[1]) + 1;
+  const {rows} = parsePattern(input, mode, {calculateCounts:true});
+  const numbered = rows.length === 1 && rows[0].stitches.every(kind=>kind==='ch') ? [] : rows;
+  return (numbered.at(-1)?.number ?? 0) + 1;
+}
+
 export function parsePattern(input, mode, {calculateCounts=false}={}) {
   const rows = [];
   const counts = [];
@@ -57,7 +71,8 @@ export function parsePattern(input, mode, {calculateCounts=false}={}) {
         phrase => ' in the ' + (phrase.endsWith('האחרונה') ? 'last' : phrase.endsWith('הראשונה') ? 'first' : phrase.endsWith('הבאה') ? 'next' : 'same') + ' stitch');
       line = line.replace(/\b(?:work|make)\s+(?=\d*\s*(?:sc|inc|dec|ch|hdc|dc|tr|slst)\b)/g, '');
       for (const [word, alias] of Object.entries(aliases)) line = line.replaceAll(word, alias);
-      const label = line.match(/^(?:r\s*)?(\d+)(?:\s*-\s*(?:r\s*)?(\d+))?\s*[:.)]\s*/);
+      line=line.replace(/—/g,'-');
+      const label = line.match(rowLabel) ?? line.match(prefixedRowLabel);
       if (label) line = line.slice(label[0].length);
       const expected = line.match(countSuffix);
       if (expected) line = line.slice(0, expected.index);

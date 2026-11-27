@@ -137,7 +137,7 @@ function pullLoop(points, index, contact) {
   points[index+1]?.addScaledVector(shift,.40);
 }
 
-function fabric(rows, shape, part, pitch, thickness, span, centers) {
+function fabric(rows, shape, part, pitch, thickness, span, centers, openRound, closedRound) {
   if (!rows.length) return null;
   const rings = [];
   const flat = part.mode === 'rows';
@@ -173,6 +173,18 @@ function fabric(rows, shape, part, pitch, thickness, span, centers) {
       rings.push(Array.from({length:segments},(_,j)=>frameAt({...row,r},j/segments*tau,part.mode,span).p));
     });
     if (rings.length === 1) rings.push(rings[0].map(p=>p.clone().add(V(0,-thickness*.7,0))));
+    if (openRound) {
+      const inner = [...shape].reverse().map(row=>{
+        const r=Math.max(thickness*.14,row.r-recess-thickness*.47);
+        return Array.from({length:segments},(_,j)=>frameAt({r,y:row.y},j/segments*tau,part.mode,0).p);
+      });
+      rings.push(...inner);
+    } else if (closedRound) {
+      const end=shape.at(-1);
+      const r=Math.max(thickness*.10,(end.r-recess)*.58);
+      const y=end.y-thickness*.33;
+      rings.push(Array.from({length:segments},(_,j)=>frameAt({r,y},j/segments*tau,part.mode,0).p));
+    }
   }
   const vertices = rings.flat();
   const indices = [];
@@ -183,7 +195,8 @@ function fabric(rows, shape, part, pitch, thickness, span, centers) {
       indices.push(a,a+segments,b,b,a+segments,b+segments);
     }
   }
-  for (const [ring,yOffset] of [[0,thickness*.12],[rings.length-1,-thickness*.12]]) {
+  const capOffsets = [[0,thickness*.12],[rings.length-1,openRound ? -thickness*.15 : -thickness*.12]];
+  for (const [ring,yOffset] of capOffsets) {
     const midpoint = vertices.length;
     vertices.push(rings[ring].reduce((center,p)=>center.add(p),V(0,0,0)).multiplyScalar(1/segments).add(V(0,yOffset,0)));
     for (let j=0;j<segments;j++) {
@@ -223,7 +236,12 @@ export function buildPart(part, parsed) {
     centers.push((centers[i-1] ?? 0) + (part.mode === 'rows' ?
       direction * ((last?.count ?? 1) - (first?.count ?? 1)) * pitch / 2 : 0));
   });
-  const core=fabric(rows,shape,part,pitch,thickness,span,centers);
+  const lastCount=rows.at(-1)?.stitches.length ?? 0;
+  const maxCount=Math.max(0,...rows.map(row=>row.stitches.length));
+  const closedRound=part.mode==='mr' && rows.length>=3 && maxCount>=8 && lastCount<=6 &&
+    lastCount<=maxCount*.5 && lastCount<(rows.at(-2)?.stitches.length ?? 0);
+  const openRound=part.mode==='mr' && rows.length>=2 && !closedRound;
+  const core=fabric(rows,shape,part,pitch,thickness,span,centers,openRound,closedRound);
   if (core) {
     group.userData.core=core;
     group.add(core);
@@ -335,7 +353,7 @@ export function buildPart(part, parsed) {
     const material = new T.MeshStandardMaterial({color: part.color, vertexColors:true, roughness:.94});
     group.add(new T.Mesh(geometry,material));
   }
-  return {group, frames, shape};
+  return {group, frames, shape, openRound};
 }
 
 export function anchorAt(model, rowNumber, start, end) {

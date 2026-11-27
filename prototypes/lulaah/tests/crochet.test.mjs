@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
-import {parsePattern,formatPatternCounts} from '../src/pattern.mjs';
+import {Vector3, Raycaster} from 'three';
+import {parsePattern,formatPatternCounts,nextPatternRow} from '../src/pattern.mjs';
 import {buildPart} from '../src/model.mjs';
 const initial='R1: 8 sc, 3 sc in next stitch, 8sc, 2 sc in last stitch';
 const second='R2: 8 sc, 3 inc, 8 sc, 2 inc';
@@ -39,4 +40,25 @@ for (const stitch of ['X', 'V']) {
       assert(closest < thickness, stitch + ' ' + loop + 'stitch ' + (index + 1));
     });
   }
+}
+
+assert.equal(nextPatternRow('R8-R14: 42 sc (42)', 'mr'), 15);
+assert.equal(nextPatternRow('r8–r14 42 sc', 'mr'), 15);
+assert.equal(nextPatternRow('Ch 10 (10)', 'oval'), 1);
+assert.equal(nextPatternRow('MR', 'mr'), 1);
+
+const headBase = 'R1: 6sc\nR2: 6 inc\nR3: (sc, inc) x 6\nR4–R8: 18 sc';
+const headClose = headBase + '\nR9: (sc, dec) x 6\nR10: 6dec';
+for (const [pattern, expectedOpen] of [[headBase,true],[headClose,false]]) {
+  const parsed = parsePattern(pattern,'mr');
+  assert.equal(parsed.error,'');
+  const model = buildPart({...part,mode:'mr'},parsed);
+  assert.equal(model.openRound,expectedOpen);
+  const core = model.group.userData.core;
+  const opening = model.shape.at(-1).y;
+  const ray = new Raycaster(new Vector3(.016,opening-4,.021),new Vector3(0,1,0));
+  const [hit] = ray.intersectObject(core);
+  assert(hit, 'the ray should meet the fabric inside the head');
+  if (expectedOpen) assert(hit.point.y > opening+1, 'the opening exposes the interior');
+  else assert(hit.point.y < opening, 'the closure meets the ray at the rim');
 }

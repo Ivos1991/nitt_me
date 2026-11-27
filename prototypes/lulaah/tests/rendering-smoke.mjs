@@ -11,14 +11,20 @@ try {
   await area.fill(initial+'\n'+second);
   assert.match(await area.inputValue(),/last stitch \(21\)\nR2:/);
   await area.press('Enter');
-  await page.keyboard.insertText('r3: flo 22 sc, 2 dec');
+  assert.match(await area.inputValue(),/\nR3: $/);
+  await page.keyboard.insertText('flo 22 sc, 2 dec');
   await area.blur();
   assert.equal(await area.inputValue(),initial+' (21)\n'+second+' (26)\nR3: flo 22 sc, 2 dec (24)');
   await area.focus();
   await area.press('End');
   await area.press('Enter');
-  await page.keyboard.insertText('r4: 24 sc');
+  assert.match(await area.inputValue(),/\nR4: $/);
+  await page.keyboard.insertText('24 sc');
   await area.blur();
   assert.match(await area.inputValue(),/\(24\)\nR4: 24 sc \(24\)$/);
+  await page.selectOption('#mode','mr');
+  await area.fill('R1: 6sc\nR2: 6inc\nR3-R14: 12 sc');
+  await area.press('Enter');
+  assert.match(await area.inputValue(),/R3-R14: 12 sc \(12\)\nR15: $/);
 } finally { await browser.close(); }
 console.log('Oval geometry, loop semantics, and live line counts passed');

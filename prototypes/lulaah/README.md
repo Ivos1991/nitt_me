@@ -21,7 +21,7 @@ R2: 8 sc, 3 inc, 8 sc, 2 inc
 R3: BLO 26 sc
 ```
 
-Replace `BLO` with `FLO` to compare the direction of the bend. The editor fills in each row's stitch count on Enter or when it loses focus.
+Replace `BLO` with `FLO` to compare the direction of the bend. The editor fills in each row's stitch count on Enter or when it loses focus. Enter also inserts the next round label, using the last number of a range. For example, `R8-R14` is followed by `R15:`. A round piece shows its interior until its final decreases close the opening.
 
 ## Checks and Android preview
 
