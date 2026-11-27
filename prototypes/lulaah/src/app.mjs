@@ -202,7 +202,7 @@ function fit() {
   const radius=Math.min(bounds.length()/2,Math.max(bounds.x,bounds.y,bounds.z)*.67);
   let elevation=.26;
   if (!assembly && part().mode==='oval') elevation=1.55;
-  else if (!assembly && models.get(part().id)?.openRound) elevation=-.9;
+  else if (!assembly && models.get(part().id)?.openRound) elevation=.92;
   const direction=new T.Vector3(.38,elevation,1).normalize();
   const vertical=T.MathUtils.degToRad(camera.fov/2);
   const half=Math.min(vertical,Math.atan(Math.tan(vertical)*camera.aspect));
@@ -233,6 +233,7 @@ function rebuild(refit=false) {
     rowCount+=parsed.rows.length;
     if (!renderer || !parsed.rows.length) return;
     const model=buildPart(item,parsed);
+    if (!assembly && item.mode==='mr') model.group.rotation.z=Math.PI;
     stage.add(model.group);
     models.set(item.id,model);
   });

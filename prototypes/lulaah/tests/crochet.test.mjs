@@ -62,3 +62,22 @@ for (const [pattern, expectedOpen] of [[headBase,true],[headClose,false]]) {
   if (expectedOpen) assert(hit.point.y > opening+1, 'the opening exposes the interior');
   else assert(hit.point.y < opening, 'the closure meets the ray at the rim');
 }
+
+const curvedHead = [
+  'R1: 6 sc', 'R2: 6 inc', 'R3: (sc, inc) x 6', 'R4: (2 sc, inc) x 6',
+  'R5: (3 sc, inc) x 6', 'R6: (4 sc, inc) x 6', 'R7: (5 sc, inc) x 6',
+  'R8-R11: 42 sc', 'R12: (5 sc, dec) x 6', 'R13: (4 sc, dec) x 6',
+  'R14: (3 sc, dec) x 6', 'R15: (2 sc, dec) x 6', 'R16: (sc, dec) x 6', 'R17: 6 dec',
+];
+const roundPart = {...part, mode: 'mr'};
+const openHead = buildPart(roundPart, parsePattern(curvedHead.slice(0, 10).join('\n'), 'mr'));
+const {shape: profile, openRound} = buildPart(roundPart, parsePattern(curvedHead.join('\n'), 'mr'));
+const radialChange = (row) => Math.abs(profile[row].r - profile[row - 1].r);
+const verticalChange = (row) => Math.abs(profile[row].y - profile[row - 1].y);
+assert.equal(openHead.openRound, true);
+assert.equal(openRound, false);
+assert(radialChange(6) < radialChange(1), 'the widening base eases into the wall');
+assert(profile[8].r > profile[6].r && profile[8].r > profile[10].r, 'the wall curves outward slightly');
+assert(radialChange(11) < radialChange(15), 'the first decrease eases into the closing curve');
+assert(verticalChange(11) > verticalChange(16), 'the final decreases flatten toward the closure');
+assert.equal(openHead.shape[11].r, profile[11].r, 'closing later rounds preserves the earlier taper');

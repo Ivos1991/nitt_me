@@ -10,15 +10,54 @@ function profile(rows, unit, straight) {
   const peak = Math.max(...radius);
   const rounded = radius.length > 4 && radius.at(-1) < peak * .65;
   const sphere = rounded && radius.length > 8 && radius[0] < peak * .3 && radius.at(-1) < peak * .3;
+  const wall = straight ? -1 : radius.findIndex((r,i)=>i>=3 && r===radius[i+1] &&
+    radius[0]<=r*.38 && radius.slice(1,i+1).every((previous,j)=>previous>radius[j]));
+  // Ease a widening base into the wall before any closing decreases are needed.
+  const wallRadius=radius[wall];
+  const firstAngle=wall>=0 ? Math.asin(radius[0]/wallRadius) : 0;
+  const growth=wall>=0 ? radius.slice(0,wall+1).map((r,i)=>{
+    const progress=(r-radius[0])/(wallRadius-radius[0]);
+    const angle=T.MathUtils.lerp(firstAngle,Math.PI/2,progress);
+    return {r:i===wall ? wallRadius : T.MathUtils.lerp(r,wallRadius*Math.sin(angle),.60),
+      height:wallRadius*.73*(Math.cos(firstAngle)-Math.cos(angle))};
+  }) : [];
+  const firstPeak=radius.indexOf(peak);
+  const lastPeak=radius.lastIndexOf(peak);
+  const taperStart=!straight && lastPeak>0 && peak>=2*radius[0] &&
+    lastPeak<radius.length-1 && radius.slice(lastPeak+1).every((r,i)=>r<=radius[lastPeak+i]) ? lastPeak : -1;
+  const pole=Math.min(radius[0],unit*6/tau);
+  const endAngle=taperStart>=0 ? Math.acos(pole/peak) : 0;
+  const taper=taperStart>=0 ? radius.slice(taperStart).map(r=>{
+    const progress=T.MathUtils.clamp((peak-r)/(peak-pole),0,1);
+    const angle=progress*endAngle;
+    return {r:r<pole ? r : T.MathUtils.lerp(r,peak*Math.cos(angle),.62),
+      height:peak*.73*Math.sin(angle)};
+  }) : [];
+  const smoothWall=!straight && lastPeak-firstPeak>=2 &&
+    radius.slice(firstPeak,lastPeak+1).every(r=>r===peak);
   const y = [0];
   for (let i = 1; i < rows.length; i++) {
     const change = Math.abs(radius[i] - radius[i-1]);
     const step = unit * 0.92 * (rows[i].height + rows[i-1].height) / 2;
-    y.push(y[i-1] + (straight ? step : Math.sqrt(Math.max(step ** 2 - change ** 2, (step * (rounded ? 0.68 : 0.16)) ** 2))));
+    const travel = straight ? step : Math.sqrt(Math.max(step ** 2 - change ** 2, (step * (rounded && !growth[i] ? 0.68 : 0.16)) ** 2));
+    const closingIndex=i-taperStart;
+    let rise=travel;
+    if (growth[i]) rise=T.MathUtils.lerp(travel,growth[i].height-growth[i-1].height,.89);
+    else if (taper[closingIndex] && radius[i]<radius[i-1]) {
+      rise=T.MathUtils.lerp(travel,taper[closingIndex].height-taper[closingIndex-1].height,.83);
+    }
+    y.push(y[i-1]+rise);
   }
   const shift = y.at(-1) / 2;
   return radius.map((r, i) => {
-    if (!sphere || straight) return {r, y: shift - y[i]};
+    const closing=taper[i-taperStart];
+    if (closing) return {r:closing.r,y:shift-y[i]};
+    if (smoothWall && i>firstPeak && i<lastPeak) {
+      const progress=(i-firstPeak)/(lastPeak-firstPeak);
+      return {r:r*(1+.055*Math.sin(Math.PI*progress)),y:shift-y[i]};
+    }
+    if (growth[i]) return {r:growth[i].r,y:shift-y[i]};
+    if (!sphere || straight || growth.length || taper.length) return {r,y:shift-y[i]};
     const angle = Math.PI * (i + .4) / (radius.length - .2);
     return {
       r: T.MathUtils.lerp(r, peak * Math.sin(angle), .64),
