@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#f7f3ec">
+<title>לולאה · סטודיו לסריגה</title>
+<style>
+:root{font-family:Arial,sans-serif;color:#30253a;background:#f8f5ef;--ink:#30253a;--muted:#6e6074;--line:#e8e0e8;--brand:#613c75;--accent:#f1e7f6;--panel:#fffefa}
+*{box-sizing:border-box}body{margin:0}button,input,select,textarea{font:inherit;color:inherit}button,select{cursor:pointer}button{border:1px solid var(--line);border-radius:10px;background:var(--panel);padding:9px 13px;font-weight:650}button:hover{border-color:#9d74ae}button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid #9565a8;outline-offset:2px}button.active,.primary{background:var(--brand);color:white;border-color:var(--brand)}input,select{border:1px solid var(--line);border-radius:9px;padding:8px;background:#fff;width:100%;min-width:0}label{display:grid;gap:6px;font-size:13px;font-weight:bold}h1,h2,p{margin:0}h1{font-size:25px}h2{font-size:18px}.muted,small{color:var(--muted)}small{font-size:12px;line-height:1.55}
+header{background:#fffefa;border-bottom:1px solid var(--line)}.top{max-width:1450px;margin:auto;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px clamp(12px,3vw,42px)}.brand{display:flex;align-items:center;gap:11px}.logo{width:43px;height:43px;border-radius:14px;background:#eee1f2;color:#613c75;display:grid;place-items:center;font-size:25px}.brand strong{font-size:23px;display:block}.actions{display:flex;gap:7px}.quiet{background:transparent}
+main{max-width:1450px;margin:auto;padding:23px clamp(12px,3vw,42px) 26px}.project{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:17px}.project p{font-size:13px;margin-top:6px}.switch{display:flex;gap:4px;padding:4px;background:#eee7ef;border-radius:13px;flex-shrink:0}.switch button{background:transparent;border:0}.switch button.active{background:white;color:var(--brand);box-shadow:0 1px 4px #30253a19}
+.parts{display:flex;gap:7px;overflow:auto;padding:0 1px 10px;margin-bottom:4px}.parts button{white-space:nowrap;display:flex;align-items:center;gap:7px}.parts button.active{background:#eee2f4;color:var(--brand);border-color:#cbafd9}.dot{width:10px;height:10px;border-radius:50%;border:1px solid #30253a44}.workspace{display:grid;grid-template-columns:minmax(290px, .87fr) minmax(340px,1.4fr);gap:15px;align-items:start}.card{background:var(--panel);border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:0 4px 18px #513b5a08}.editor{padding:17px;display:grid;gap:13px}.row{display:flex;justify-content:space-between;align-items:center;gap:8px}.options{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.options input[type=color]{padding:3px;height:36px}.wide{grid-column:span 2}.fieldhint{font-weight:normal}.code{resize:vertical;width:100%;min-height:224px;background:#f9f6fa;border:1px solid var(--line);border-radius:11px;padding:11px;line-height:1.65;font:14px/1.65 ui-monospace,monospace;unicode-bidi:plaintext;text-align:start}.status{font-size:12px;color:#397253;background:#edf5ee;border-radius:9px;padding:8px 10px;min-height:33px}.status.error{background:#fbece7;color:#932f2a}details{font-size:13px;color:var(--muted);line-height:1.55}summary{cursor:pointer;font-weight:bold}code{direction:ltr;unicode-bidi:isolate;display:inline-block}
+.preview{position:sticky;top:12px}.preview-head{padding:14px 16px;background:#fffdf9}.viewport{position:relative;background:radial-gradient(ellipse at 52% 43%,#fcf8f1 0%,#eee6ed 66%,#e6dce8 100%);height:clamp(410px,65vh,680px);overflow:hidden}.viewport canvas{width:100%;height:100%;display:block;touch-action:none}.view-actions{display:flex;align-items:center;gap:6px;position:absolute;bottom:11px;left:11px;direction:ltr}.view-actions button{min-width:38px;padding:6px 9px;background:#fffefaee}.empty{position:absolute;inset:0;display:grid;place-items:center;pointer-events:none;padding:25px;text-align:center}.empty[hidden],[hidden]{display:none!important}.foot{padding:10px 14px;font-size:12px;color:var(--muted);min-height:36px}.assembly-note{line-height:1.6;font-size:13px;color:var(--muted)}.danger{color:#9e383b}.compact{font-size:12px;padding:6px 8px}.attachments{display:grid;gap:8px}.attachments button{text-align:right}.divider{height:1px;background:var(--line)}dialog{border:1px solid var(--line);background:var(--panel);border-radius:18px;color:var(--ink);width:min(440px,calc(100% - 24px));padding:20px}dialog::backdrop{background:#251b33a2}dialog form{display:grid;gap:14px}.dialog-actions{justify-content:flex-end}.projectlist{display:grid;gap:7px;max-height:45vh;overflow:auto}
+@media(max-width:705px){.top{padding:9px 12px}.brand strong{font-size:19px}.logo{width:35px;height:35px;font-size:21px}.brand small{display:none}main{padding-top:16px}.project{margin-bottom:10px}h1{font-size:20px}.switch button{padding:7px}.workspace{display:flex;flex-direction:column;gap:10px}.card{width:100%}.preview{position:sticky;top:0;order:-1;z-index:1}.preview-head{padding:8px 12px}.preview-head h2{font-size:14px}.viewport{height:clamp(160px,30dvh,290px)}.foot{padding:6px 10px;min-height:27px}.editor{padding:12px}.code{min-height:200px}.parts{padding-bottom:7px}.view-actions{bottom:6px;left:6px}.view-actions button{padding:4px 7px;min-width:31px}}
+</style>
+</head>
+<body>
+<header><div class="top">
+<div class="brand"><span class="logo" aria-hidden="true">🧶</span><div><strong>לולאה</strong><small>סטודיו לסריגה בתלת־ממד</small></div></div>
+<div class="actions"><button id="projects" class="quiet">פרויקטים</button><button id="newProject" class="primary">＋ פרויקט</button></div>
+</div></header>
+<main>
+<div class="project">
+<div><h1 id="projectName"></h1><p class="muted" id="projectInfo"></p></div>
+<div class="switch" aria-label="מצב עבודה"><button id="editMode">עריכת חלק</button><button id="assemblyMode">הרכבה</button></div>
+</div>
+<nav aria-label="חלקים בפרויקט" class="parts" id="parts"></nav>
+<div class="workspace">
+<section class="card editor" id="editor">
+<div class="row"><h2>הוראות סריגה</h2><button class="compact danger" id="deletePart">מחיקת חלק</button></div>
+<div class="options">
+<label class="wide">שם החלק<input id="partName" maxlength="60"></label>
+<label>סוג סריגה<select id="mode"><option value="mr">טבעת קסם (MR)</option><option value="rows">שורות</option><option value="oval">אובלי</option></select></label>
+<label>עובי חוט במ״מ<input id="yarn" type="number" min="0.5" max="12" step="0.1"></label>
+<label>מסרגה במ״מ<input id="hook" type="number" min="0.5" max="16" step="0.1"></label>
+<label>צבע חוט<input id="color" type="color"></label>
+<label>סוג העין<select id="stitch"><option>X</option><option>V</option></select></label>
+</div>
+<label>הוראות לחלק <textarea id="pattern" class="code" spellcheck="false" autocapitalize="sentences" dir="auto" placeholder="R1: 6 sc in MR (6)"></textarea></label>
+<div id="status" role="status" class="status"></div>
+<details><summary>תחביר נתמך ודוגמאות</summary>
+<p>כל שורה מייצגת שורה או סיבוב. אפשר להשתמש בקיצורים באנגלית או בשמות עיניים בעברית. האפליקציה מוסיפה בסוגריים את סך העיניים בסוף השורה כשיורדים שורה או יוצאים מהעורך.</p>
+<p><code>R1: 6 sc in MR (6)</code><br><code>R2: 6 inc (12)</code><br><code>R3: (sc, inc) x 6 (18)</code><br><code>R4–6: 18 sc</code></p>
+<p><code>sc</code> חצי עמוד, <code>inc</code> הגדלה, <code>dec</code> צמצום, <code>ch</code> עין שרשרת, <code>slst</code> עין שטוחה, <code>hdc</code> עמוד קצר, <code>dc</code> עמוד, <code>tr</code> עמוד כפול.</p>
+<p>באובלי סורגים בצד אחד של שרשרת הבסיס, מקיפים את הקצה, חוזרים בצד השני ומקיפים את הקצה שממנו התחלנו. לדוגמה, <code>R1: 8 sc, 3 sc in next stitch, 8sc, 2 sc in last stitch (21)</code> הוא סיבוב אחד. אפשר לציין שרשרת בסיס בשורה שלפניו. סריגה דרך שתי הלולאות יוצרת בסיס שטוח. לפתיחת קימור כתבי למשל <code>R2: BLO 21sc</code> כלפי חוץ או <code>R2: FLO 21sc</code> כלפי פנים. בשורות אפשר לכתוב <code>9sc, inc in the last stitch</code> או <code>9 חצי עמוד, הגדלה בעין האחרונה</code>.</p></details>
+</section>
+<section class="card editor" id="assembly" hidden>
+<div class="row"><h2>חיבור חלקים</h2><button class="compact" id="free">גרירה חופשית</button></div>
+<p class="assembly-note">בחרי חלק לחיבור ולחצי על מקום במודל היעד, או הזיני שורה וטווח עיניים. החיבור משתמש בקצה השורה האחרונה של החלק הנבחר.</p>
+<label>החלק לחיבור<select id="child"></select></label>
+<label>חלק יעד<select id="target"></select></label>
+<div class="options">
+<label>שורה<input id="anchorRow" type="number" min="1" step="1"></label>
+<label>מעין<input id="anchorStart" type="number" min="1" step="1"></label>
+<label>עד עין<input id="anchorEnd" type="number" min="1" step="1"></label>
+</div>
+<div class="row"><button class="primary" id="attach">חיבור לחלק היעד</button><button id="detach">ניתוק</button></div>
+<div class="status" role="status" id="assemblyStatus"></div>
+<div class="divider"></div>
+<div class="attachments" id="links"></div>
+</section>
+<section class="card preview">
+<div class="row preview-head"><h2 id="previewTitle">תצוגה תלת־ממדית</h2><small id="previewMeta"></small></div>
+<div class="viewport" id="viewport">
+<div class="empty" id="empty" hidden><p></p></div>
+<div class="view-actions"><button id="zoomOut" aria-label="התרחקות">−</button><button id="zoomIn" aria-label="התקרבות">＋</button><button id="reset" aria-label="איפוס תצוגה">⌂</button></div>
+</div>
+<div class="foot" id="viewHelp">גררי לסיבוב · צבטי או גללי לזום</div>
+</section>
+</div>
+</main>
+<dialog id="dialog"><form id="dialogForm">
+<h2 id="dialogTitle"></h2>
+<label id="nameField">שם<input id="dialogName" maxlength="60" required></label>
+<label id="kindField">סוג פרויקט<select id="projectKind"><option>אמיגורומי</option><option>סריגה כללית</option></select></label>
+<div class="projectlist" id="projectList"></div>
+<div class="row dialog-actions"><button type="button" id="cancel">סגירה</button><button class="primary" id="confirm">יצירה</button></div>
+</form></dialog>
+<script>/*APP_BUNDLE*/</script>
+</body>
+</html>
